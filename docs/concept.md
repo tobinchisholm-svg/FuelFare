@@ -96,50 +96,36 @@ Getting the route distance is a Must Have because it is central to the applicati
 
 ## 10. Conceptual Architecture
 
-```
-            FuelFare — Conceptual Architecture
+```mermaid
+flowchart TD
+    A["WEBD 3100 - Website and Interface"]
+    B["PROG 2700 - Dynamic Functionality"]
+    C["DBAS 3200 - Django API"]
+    D["Map Service - Route Distance"]
+    E[("PostgreSQL - Vehicle Ratings and Gas Prices")]
+    F["JSON Response - Distance, Litres, Total Cost, Cost Per Person"]
+    G["WEBD 3100 - Result Card Shown to User"]
 
-   [ WEBD 3100 ]  Website / Interface
-   Calculator page · Garage · Trips · Gas Prices
-                        │
-                        ▼
-   [ PROG 2700 ]  Dynamic Functionality
-   Start/destination inputs · Vehicle dropdowns
-                        │
-         POST /api/trips/calculate/
-         { from: "Port Hawkesbury, NS",
-           to: "Halifax, NS", vehicle,
-           round_trip: true, passengers: 2 }
-                        │
-                        ▼
-   [ DBAS 3200 ]  Django API
-   Validates request · Applies calculation logic
-          │                          │
-          ▼                          ▼
-   [ Map Service ]            [ PostgreSQL ]
-   Route distance (km)        Vehicle fuel rating
-                              + zone gas price
-          │                          │
-          └────────────┬─────────────┘
-                       ▼
-   [ Django API ]  JSON Response
-   { distance_km: 560, litres_used: 42.0,
-     total_cost: 63.00, cost_per_person: 31.50 }
-                       │
-                       ▼
-   [ PROG 2700 → WEBD 3100 ]
-   Result card displayed to the user
+    A --> B
+    B -->|"POST trip calculate request"| C
+    C -->|"Get route distance"| D
+    D -->|"560 km round trip"| C
+    C -->|"Get fuel rating and gas price"| E
+    E -->|"7.5 L per 100 km and 1.50 per litre"| C
+    C --> F
+    F --> B
+    B --> G
 ```
 
-*(The numbers are an example only: 560 km round trip × 7.5 L/100 km = 42 L, and 42 L × $1.50/L = $63.00, or $31.50 each.)*
+**Example data flow:** a user requests a trip from Port Hawkesbury, NS to Halifax, NS. The Django API gets the route distance from the map service (560 km round trip), looks up the vehicle's fuel rating (7.5 L/100 km) and the zone's gas price ($1.50/L) in PostgreSQL, and returns JSON: 42 L used, $63.00 total, $31.50 per person for 2 passengers.
 
 ## 11. GitHub Repository
 
-**Repository:** https://github.com/<your-username>/<your-repo-name>
+**Repository:** https://github.com/tobinchisholm-svg/FuelFare
 
 **Starting structure:**
 ```
-fuelfare/
+FuelFare/
 ├── README.md
 ├── docs/
 │   ├── concept.md
